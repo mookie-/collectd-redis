@@ -53,3 +53,8 @@ func fetchRedisInfo(client *redis.Client) (string, error) {
 	output, err := client.Info().Result()
 	return output, err
 }
+
+func fetchRedisLatencyInfo(client *redis.Client, command string) (interface{}, error) {
+	output, err := client.Do("latency", "history", command).Result()
+	return output, err
+}

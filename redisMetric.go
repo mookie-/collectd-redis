@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type redisMetric struct {
@@ -80,6 +81,30 @@ func generateRecordsMetrics(redisInfoOutput string) []redisMetric {
 		}
 
 	}
+	return metrics
+}
+
+func generateLatencyMetrics(redisLatencyOutput interface{}, event string) []redisMetric {
+	var metrics []redisMetric
+
+  now := time.Now()
+  latency := int64(0)
+  for _, entry := range redisLatencyOutput.([]interface{}) {
+    time_value := entry.([]interface{})[0].(int64) + int64(collectdInterval)
+    timestamp := time.Unix(time_value, 0)
+    value := entry.([]interface{})[1].(int64)
+    if timestamp.After(now) {
+      if value > latency {
+        latency = value
+      }
+    }
+  }
+
+  metrics = append(metrics, redisMetric{
+    name:  fmt.Sprintf("latency-%s", event),
+    value: float64(latency),
+  })
+
 	return metrics
 }
 

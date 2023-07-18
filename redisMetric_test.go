@@ -159,6 +159,19 @@ func Test_generateUniqueMetrics(t *testing.T) {
 	}
 }
 
+func Test_generateLatencyMetrics(t *testing.T) {
+	result := generateLatencyMetrics(getTestRedisInfoOutput())
+	expected := []redisMetric{
+		{
+			name:  "TOOODOOO-2",
+			value: 2,
+		},
+	}
+	if diff := cmp.Diff(expected, result, cmp.AllowUnexported(redisMetric{})); diff != "" {
+		t.Error(diff)
+	}
+}
+
 func Test_parsePutvalString(t *testing.T) {
 	type args struct {
 		instance string

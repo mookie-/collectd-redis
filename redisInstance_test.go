@@ -116,3 +116,7 @@ func getTestRedisInfoOutput() string {
 	errCheckFatal(err)
 	return string(content)
 }
+
+func getTestRedisLatencyOutput() interface{} {
+	return TODO FUCKUP
+}

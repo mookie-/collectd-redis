@@ -36,7 +36,7 @@ This plugin uses [collectd Exec](https://collectd.org/wiki/index.php/Plugin:Exec
 </LoadPlugin>
 
 <Plugin exec>
-  Exec "collectd:collectd" "/opt/collectd/collectd-redis" "caching:localhost:6379"
+  Exec "collectd:collectd" "/opt/collectd/collectd-redis" "caching:localhost:6379" "l"
   Exec "collectd:collectd" "/opt/collectd/collectd-redis" "queue:localhost:6380"
 </Plugin>
 ```
@@ -44,5 +44,6 @@ This plugin uses [collectd Exec](https://collectd.org/wiki/index.php/Plugin:Exec
 ## Connection string
 
 The plugin takes a connection string in the format `<name>:<host/ip>:<port>[:<password>]`.
+If the second argument is "l", also informations from `latency history` will be collected. For this you have to configure `latency-monitor-threshold` in your redis-server.
 
 The password is optional and the part of the string in square bracktes is not required if the redis instances does not use password authentication.

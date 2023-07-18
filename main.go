@@ -82,10 +82,28 @@ func redisMetrics(redisInstance redisInstance, redisClient *redis.Client) {
 	}
 }
 
+func redisLatencyMetrics(redisInstance redisInstance, redisClient *redis.Client) {
+  latency_events := []string{"command", "fast-command", "fork", "expire-cycle", "eviction-cycle", "eviction-del"}
+  var metrics []redisMetric
+
+  for i := 0; i < len(latency_events); i++ {
+    latency_info, err := fetchRedisLatencyInfo(redisClient, latency_events[i])
+    if err != nil {
+      log.Printf("Error when trying to fetch latency info from redis instance <%s>.\n", redisInstance.name)
+      log.Println(err)
+    } else {
+      metrics = append(metrics, generateLatencyMetrics(latency_info, latency_events[i])...)
+    }
+  }
+  for _, metric := range metrics {
+    fmt.Print(parsePutvalString(redisInstance.name, metric))
+  }
+}
+
 func main() {
 	args := os.Args[1:]
-	if len(args) != 1 {
-		log.Fatal("Exact one <name>:<host>:<port>[:<password>] must be given or `version`.")
+	if len(args) < 1 && len(args) > 2 {
+		log.Fatal("The first argument needs to be the Redis URL <name>:<host>:<port>[:<password>] the second argument is optional and enables latency metrics.")
 	}
 	if args[0] == "version" {
 		fmt.Println(version)
@@ -100,6 +118,13 @@ func main() {
 
 	for {
 		redisMetrics(redisInstance, redisClient)
+    if len(os.Args) == 3 {
+      if os.Args[2] == "l" {
+        redisLatencyMetrics(redisInstance, redisClient)
+      } else {
+        log.Fatal("The second argument needs to be 'l' to collectd latency metrics")
+      }
+    }
 		time.Sleep(time.Duration(collectdInterval) * time.Second)
 	}
 }
